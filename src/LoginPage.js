@@ -1,13 +1,32 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const LoginPage = () => {
-  const [role, setRole] = useState('USER');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [role, setRole] = useState("USER");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role");
+
+    if (token && storedRole) {
+      if (storedRole === "USER") {
+        navigate("/userdashboard");
+      } else if (storedRole === "ADMIN") {
+        navigate("/admindashboard");
+      } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+      }
+    } else {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+    }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -15,40 +34,46 @@ const LoginPage = () => {
     const loginDTO = {
       email: email,
       password: password,
-      userType: role
+      userType: role,
     };
 
     try {
-      const response = await fetch('http://localhost:8080/lmsa/user/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginDTO)
+      const response = await fetch("http://localhost:8080/lmsa/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginDTO),
       });
 
       const data = await response.json();
 
       if (response.ok && data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', role);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", role);
 
-        if (role === 'USER') {
-          navigate('/userdashboard');
+        if (role === "USER") {
+          navigate("/userdashboard");
         } else {
-          navigate('/admindashboard');
+          navigate("/admindashboard");
         }
 
-        setError('');
+        setError("");
       } else {
-        setError(data.message || 'Login failed. Please check your credentials and try again.');
+        setError(
+          data.message ||
+            "Login failed. Please check your credentials and try again."
+        );
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again later.');
+      setError("An unexpected error occurred. Please try again later.");
     }
   };
 
   return (
     <div className="container d-flex align-items-center justify-content-center vh-100 bg-light">
-      <div className="text-center border p-5 rounded shadow bg-white" style={{ maxWidth: '400px', width: '100%' }}>
+      <div
+        className="text-center border p-5 rounded shadow bg-white"
+        style={{ maxWidth: "400px", width: "100%" }}
+      >
         <h2 className="mb-1 fw-bold">LO-GO</h2>
         <h4 className="mb-4">Login</h4>
 
@@ -79,20 +104,28 @@ const LoginPage = () => {
             Log in
           </button>
 
-          <p className="mb-3"><a href="#" className="text-decoration-none">Forgot password?</a></p>
+          <p className="mb-3">
+            <a href="#" className="text-decoration-none">
+              Forgot password?
+            </a>
+          </p>
 
           <div className="d-flex justify-content-between">
             <button
               type="button"
-              className={`btn w-50 me-2 ${role === 'ADMIN' ? 'btn-dark text-white' : 'btn-light border'}`}
-              onClick={() => setRole('ADMIN')}
+              className={`btn w-50 me-2 ${
+                role === "ADMIN" ? "btn-dark text-white" : "btn-light border"
+              }`}
+              onClick={() => setRole("ADMIN")}
             >
               Admin
             </button>
             <button
               type="button"
-              className={`btn w-50 ${role === 'USER' ? 'btn-dark text-white' : 'btn-light border'}`}
-              onClick={() => setRole('USER')}
+              className={`btn w-50 ${
+                role === "USER" ? "btn-dark text-white" : "btn-light border"
+              }`}
+              onClick={() => setRole("USER")}
             >
               User
             </button>

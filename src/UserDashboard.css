@@ -1,10 +1,10 @@
 /* Importing Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 
 /* General styling */
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   background-color: #f7f7f7;
   margin: 0;
   padding: 0;
@@ -12,13 +12,20 @@ body {
 
 /* Dashboard Styling */
 .dashboard {
-  max-width: 900px;
+  background-image: url("https://i.postimg.cc/WbjH92BC/ccrp.png");
+  background-size: cover; /* Ensures the image covers the container */
+  background-position: center;
+  background-attachment: fixed; /* Keeps the background fixed during scroll */
+  max-width: 100%;
+  height: 100vh; /* Full height of the viewport */
   margin: auto;
-  padding: 2rem;
+  padding: 10%;
+  background-repeat: no-repeat; /* Ensures the image does not repeat */
+  overflow-y: auto; /* Enables scrolling if content exceeds the height of the container */
 }
 
 h2 {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
   font-size: 2.5rem;
   color: #333;
@@ -45,7 +52,7 @@ h2 {
 }
 
 .badge {
-  background-color: #FFD700; /* Gold badge color */
+  background-color: #ffd700; /* Gold badge color */
   color: black;
   padding: 0.5rem 1rem;
   border-radius: 1rem;
@@ -81,10 +88,20 @@ h2 {
   margin-top: 10px;
 }
 
-.progress-fill {
-  background-color: #00b894;
+.progress-bar-bg {
+  width: 100%;
+  height: 0.5rem;
+  background-color: #d1d5db;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
   height: 100%;
-  border-radius: 10px;
+  background-color: #3b7d7a;
+  border-radius: 9999px;
+  width: 0;
+  transition: width 0.3s ease;
 }
 
 .activity-section,
@@ -110,6 +127,46 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 5px;
+}
+
+/* Header Title Styling */
+.rewards-header h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+/* See All Button Styling */
+.see-all-button {
+  background-color: #007bff; /* Blue background */
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Button Hover Effect */
+.see-all-button:hover {
+  background-color: #0056b3; /* Darker blue */
+  transform: translateY(-2px); /* Slight elevation on hover */
+}
+
+/* Button Active Effect */
+.see-all-button:active {
+  background-color: #004085; /* Even darker blue */
+  transform: translateY(0); /* Reset hover effect */
+}
+
+/* Optional: Focus outline for accessibility */
+.see-all-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(38, 143, 255, 0.5);
 }
 
 .rewards-grid {
@@ -141,12 +198,102 @@ h2 {
 
 /* General styles for activity */
 .activity-item strong {
-    font-weight: bold;
-    color: #333; /* Default color */
-  }
-  
-  /* Green color for "Earned" activity type */
-  .earned {
-    color: #28a745; /* Green color */
-  }
-  
+  font-weight: bold;
+  color: #333; /* Default color */
+}
+
+/* Green color for "Earned" activity type */
+.earned {
+  color: #28a745; /* Green color */
+}
+
+/* Modal Styling */
+.modal {
+  display: block; /* Display the modal when open */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  margin: auto;
+  margin-top: 100px;
+}
+
+.close-btn {
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rewards-grid {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.reward-card {
+  background: #fff;
+  padding: 1.2rem;
+  border-radius: 12px;
+  flex: 1;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  cursor: pointer;
+  width: 200px;
+}
+
+.reward-card img {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 0.5rem;
+}
+
+/* Disabled reward cards */
+.reward-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #ff5c5c; /* Bright Red */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #ff3d3d; /* Slightly darker red */
+  transform: scale(1.05);
+}
+
+.logout-btn:focus {
+  outline: none;
+}
