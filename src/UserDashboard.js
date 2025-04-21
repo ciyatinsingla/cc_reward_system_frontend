@@ -14,7 +14,11 @@ import Box from "@mui/material/Box";
 const UserDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [rewards, setRewards] = useState([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal for rewards
+  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false); // Modal for activity
+
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -38,8 +42,34 @@ const UserDashboard = () => {
       }
     };
 
+    const fetchRewards = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/lmsa/rewards", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        // Log to verify the fetched rewards data
+        console.log("Fetched Rewards:", response.data);
+
+        // Map the fetched rewards and format them
+        const formattedRewards = response.data.map((reward) => ({
+          id: reward.id,
+          name: reward.name,
+          rewardDescription: reward.rewardDescription,
+          numberOfPoints: reward.numberOfPoints,
+          imgUrl: reward.imgUrl,
+        }));
+
+        setRewards(formattedRewards);
+      } catch (error) {
+        console.error("Error fetching rewards:", error);
+      }
+    };
+
     if (token) {
       fetchUserData();
+      fetchRewards();
     } else {
       navigate("/");
     }
@@ -53,6 +83,22 @@ const UserDashboard = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     navigate("/");
+  };
+
+  const handleRedeemClick = () => {
+    setIsModalOpen(true); // Open the rewards modal
+  };
+
+  const handleActivityClick = () => {
+    setIsActivityModalOpen(true); // Open the activity modal
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false); // Close the rewards modal
+  };
+
+  const handleCloseActivityModal = () => {
+    setIsActivityModalOpen(false); // Close the activity modal
   };
 
   const tierMap = [
@@ -128,60 +174,35 @@ const UserDashboard = () => {
     });
   };
 
-  const handleRedeemClick = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
   const redeemReward = async (rewardId) => {
     try {
+      // Find the reward object based on the rewardId
+      const reward = rewards.find((r) => r.id === rewardId); // Find the reward in the rewards list
+
+      // Send the reward object to the backend for redemption
       const response = await axios.post(
-        `http://localhost:8080/lmsa/user/redeem`, // Example API endpoint for redeeming a reward
-        { rewardId }, // Send the reward ID (you can add more params if needed)
+        `http://localhost:8080/lmsa/rewards/redeem`,
+        reward, // Send the whole reward object to the backend
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Pass the token for authentication
           },
         }
       );
-      if (response.data.success) {
+
+      if (response.data === "User transaction processed successfully.") {
         alert(
-          `Reward redemption request submitted successfully!: ${response.data.reward.name}`
+          `Reward redemption request submitted successfully: ${reward.name}`
         );
-        setUserData(response.data.user);
+        setUserData(response.data.user); // Update user data after successful redemption
+      } else {
+        alert("Error: " + response.data);
       }
     } catch (error) {
       console.error("Error redeeming reward:", error);
       alert("Error redeeming reward. Please try again.");
     }
   };
-
-  const rewards = [
-    {
-      id: 1,
-      name: "Amazon Voucher",
-      rewardDescription: "₹500 Amazon Gift Card",
-      numberOfPoints: 500,
-      img: "https://i.postimg.cc/SNw5c0L1/logo.png",
-    },
-    {
-      id: 2,
-      name: "Flipkart Coupon",
-      rewardDescription: "₹300 Flipkart Discount Coupon",
-      numberOfPoints: 300,
-      img: "https://i.postimg.cc/L4W8PXJt/flipkart.png",
-    },
-    {
-      id: 3,
-      name: "Starbucks Voucher",
-      rewardDescription: "₹200 Coffee Voucher",
-      numberOfPoints: 200,
-      img: "https://i.postimg.cc/Z5tYfMF0/starbucks.png",
-    },
-  ];
 
   // Activity List Component
   const ActivityList = ({ activities }) => {
@@ -244,7 +265,7 @@ const UserDashboard = () => {
             <FontAwesomeIcon icon={faPlusCircle} />
             Earn More
           </button>
-          <button className="action-btn">
+          <button className="action-btn" onClick={handleActivityClick}>
             <FontAwesomeIcon icon={faClock} />
             Activity
           </button>
@@ -289,55 +310,66 @@ const UserDashboard = () => {
           </button>
         </div>
         <div className="rewards-grid">
-          {rewards.map((reward) => (
-            <div
-              className="reward-card"
-              key={reward.id}
-              onClick={() => redeemReward(reward.id)} // Call redeemReward when a reward is clicked
-            >
-              <img src={reward.img} alt={reward.name} />
-              <p>
-                {reward.name}
-                <br />
-                <strong>{reward.numberOfPoints} points</strong>
-              </p>
-              <p>{reward.rewardDescription}</p>
-            </div>
-          ))}
+          {rewards.length === 0 ? (
+            <p>No rewards available.</p>
+          ) : (
+            rewards.map((reward) => (
+              <div
+                className="reward-card"
+                key={reward.id}
+                onClick={() => redeemReward(reward.id)}
+              >
+                <img src={reward.imgUrl} alt={reward.name} />
+                <p>
+                  {reward.name}
+                  <br />
+                  <strong>{reward.numberOfPoints} points</strong>
+                </p>
+                <p>{reward.rewardDescription}</p>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
+      {/* Modal for Activity */}
+      {isActivityModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <span className="close-btn" onClick={handleCloseActivityModal}>
+              &times;
+            </span>
+            <h3>Recent Activity</h3>
+            <ActivityList activities={userData?.recentActivity} />
+          </div>
+        </div>
+      )}
+
       {/* Modal for Redeem Rewards */}
       {isModalOpen && (
-        <div className="modal">
+        <div className="modal-overlay">
           <div className="modal-content">
             <span className="close-btn" onClick={handleCloseModal}>
               &times;
             </span>
             <h3>Select a Reward to Redeem</h3>
             <div className="rewards-grid">
-              {rewards.map((reward) => (
-                <div
-                  key={reward.id}
-                  className={`reward-card ${
-                    reward.numberOfPoints > totalPoints ? "disabled" : ""
-                  }`}
-                  style={
-                    reward.numberOfPoints > totalPoints
-                      ? { cursor: "not-allowed", opacity: 0.5 }
-                      : {}
-                  }
-                  onClick={() =>
-                    reward.numberOfPoints <= totalPoints &&
-                    redeemReward(reward.id)
-                  }
-                >
-                  <img src={reward.img} alt={reward.name} />
-                  <h3>{reward.name}</h3>
-                  <p>{reward.rewardDescription}</p>
-                  <strong>{reward.numberOfPoints} Points</strong>
-                </div>
-              ))}
+              {rewards.length === 0 ? (
+                <p>No rewards available</p>
+              ) : (
+                rewards.map((reward) => (
+                  <div
+                    className="reward-card"
+                    key={reward.id}
+                    onClick={() => redeemReward(reward.id)}
+                  >
+                    <img src={reward.imgUrl} alt={reward.name} />
+                    <p>{reward.name}</p>
+                    <strong>{reward.numberOfPoints} points</strong>
+                    <p>{reward.rewardDescription}</p>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

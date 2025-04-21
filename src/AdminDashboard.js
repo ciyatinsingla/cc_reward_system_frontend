@@ -609,7 +609,7 @@ const AdminDashboard = () => {
               }
             >
               <FontAwesomeIcon icon={faPlayCircle} />
-              <span style={{ marginLeft: "1rem" }}>Start Sync</span>
+              <span style={{ marginLeft: "0.5rem" }}>Start Sync</span>
             </button>
           </div>
           {!isEndEnabled && (
