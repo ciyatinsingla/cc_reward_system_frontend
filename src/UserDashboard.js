@@ -8,8 +8,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "./UserDashboard.css";
 import { useNavigate } from "react-router-dom";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
 
 const UserDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -139,7 +137,6 @@ const UserDashboard = () => {
   let currentTier = "";
   let nextTier = "";
   let pointsToNextTier = "";
-  let progressWidth = 0;
 
   for (let tier of tierMap) {
     if (
@@ -149,10 +146,6 @@ const UserDashboard = () => {
       currentTier = tier.name;
       nextTier = tier.nextTier;
       pointsToNextTier = tier.pointsUpperLimit - totalPoints;
-      progressWidth =
-        ((totalPoints - tier.pointsLowerLimit) /
-          (tier.pointsUpperLimit - tier.pointsLowerLimit)) *
-        100;
       break;
     }
   }
@@ -231,23 +224,9 @@ const UserDashboard = () => {
 
   return (
     <div className="dashboard">
-      {/* Logout Button at the top-right */}
-      <Box
-        display="flex"
-        justifyContent="flex-end"
-        alignItems="center"
-        padding={2}
-      >
-        <Button
-          class="logout-btn"
-          variant="outlined"
-          color="primary"
-          onClick={handleLogout}
-          sx={{ height: 39, minWidth: 100 }}
-        >
-          Logout
-        </Button>
-      </Box>
+      <button className="logout-btn" onClick={handleLogout}>
+        Logout
+      </button>
       <h2>Hi, {userData?.name || "User"}!</h2>
 
       <div className="points-card">
@@ -257,21 +236,21 @@ const UserDashboard = () => {
         </div>
 
         <div className="quick-actions">
-          <button className="action-btn" onClick={handleRedeemClick}>
+          <button className="action-btn mar-right" onClick={handleRedeemClick}>
             <FontAwesomeIcon icon={faGift} />
             Redeem Rewards
           </button>
-          <button className="action-btn">
+          <button className="action-btn mar-center">
             <FontAwesomeIcon icon={faPlusCircle} />
             Earn More
           </button>
-          <button className="action-btn" onClick={handleActivityClick}>
+          <button className="action-btn mar-left" onClick={handleActivityClick}>
             <FontAwesomeIcon icon={faClock} />
             Activity
           </button>
         </div>
 
-        {nextTier && nextTier !== "" && (
+        {nextTier !== "" && (
           <div className="progress-info">
             <div className="progress-bar">
               <div className="progress-bar-bg">

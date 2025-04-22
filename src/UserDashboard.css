@@ -2,6 +2,26 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 
+.logout-btn {
+  top: 20px;
+  right: 20px;
+  max-width: 10%;
+  position: fixed; /* Use fixed for global screen position */
+  background-color: #ff5c5c; /* Bright Red */
+  color: white;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 25px;
+  cursor: pointer;
+  z-index: 999; /* Keeps it on top of other elements */
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #e64545; /* Slightly darker on hover */
+}
+
 /* General styling */
 body {
   font-family: "Roboto", sans-serif;
@@ -10,7 +30,6 @@ body {
   padding: 0;
 }
 
-/* Dashboard Styling */
 .dashboard {
   background-image: url("https://i.postimg.cc/WbjH92BC/ccrp.png");
   background-size: cover; /* Ensures the image covers the container */
@@ -19,9 +38,15 @@ body {
   max-width: 100%;
   height: 100vh; /* Full height of the viewport */
   margin: auto;
-  padding: 10%;
+  padding: 5%;
   background-repeat: no-repeat; /* Ensures the image does not repeat */
   overflow-y: auto; /* Enables scrolling if content exceeds the height of the container */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: sans-serif;
+  color: #111827;
+  min-height: 150vh;
 }
 
 h2 {
@@ -59,7 +84,7 @@ h2 {
   font-weight: 600;
 }
 
-.quick-actions {
+/* .quick-actions {
   display: flex;
   justify-content: space-around;
   margin: 1.5rem 0;
@@ -75,6 +100,59 @@ h2 {
   display: flex;
   align-items: center;
   gap: 8px;
+} */
+
+.quick-actions {
+  display: flex;
+  justify-content: space-between;
+  margin: 1.5rem 0;
+  padding: 0 2rem;
+}
+
+.action-btn {
+  color: #333;
+  background-color: #e8e6e6;
+  border: 1px solid #ddd; /* Light border for definition */
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mar-right {
+  margin-right: 5rem;
+}
+
+.mar-center {
+  margin-right: 5rem;
+  margin-left: 5rem;
+}
+
+.mar-left {
+  margin-left: 5rem;
+}
+
+.action-btn:hover {
+  background-color: #cac9c9; /* Slightly darker shade for hover */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:active {
+  background-color: #d0d0d0; /* Even darker shade for active */
+}
+
+.action-btn .icon {
+  font-size: 1.2rem; /* Adjust if needed */
+}
+
+.action-btn span {
+  font-size: 1rem;
+  white-space: nowrap;
 }
 
 .progress-info {
@@ -140,6 +218,8 @@ h2 {
 
 /* See All Button Styling */
 .see-all-button {
+  max-width: 10%;
+  right: 20px;
   background-color: #007bff; /* Blue background */
   color: white;
   border: none;
@@ -273,29 +353,6 @@ h2 {
 .reward-card.disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.logout-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background-color: #ff5c5c; /* Bright Red */
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.logout-btn:hover {
-  background-color: #ff3d3d; /* Slightly darker red */
-  transform: scale(1.05);
-}
-
-.logout-btn:focus {
-  outline: none;
 }
 
 /* Modal Overlay */
