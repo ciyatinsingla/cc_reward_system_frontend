@@ -8,7 +8,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
-import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
 
@@ -58,7 +57,6 @@ const AdminDashboard = () => {
   const [adminData, setAdminData] = useState(null);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [action, setAction] = useState("EARNED");
   const [amount, setAmount] = useState(0);
@@ -293,11 +291,11 @@ const AdminDashboard = () => {
           },
         }
       );
-      alert("Started syncing successfully!");
       console.log("Sync started.");
+      alert(response.data);
     } catch (error) {
       console.error("Error applying changes:", error);
-      alert("Something went wrong. Try again.");
+      alert("Invalid or corrupted data found.");
     }
   };
 
@@ -329,6 +327,9 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
+      <button className="logout-btn" onClick={handleLogout}>
+        Logout
+      </button>
       <header className="header">
         <h1>Points Management</h1>
         <div className="header-right">
@@ -341,15 +342,6 @@ const AdminDashboard = () => {
               Active Users:&nbsp;{adminData.activeUsers.toLocaleString()}
             </p>
           </div>
-          <Button
-            class="logout-btn"
-            variant="outlined"
-            color="primary"
-            onClick={handleLogout}
-            sx={{ height: 36, minWidth: 100 }}
-          >
-            Logout
-          </Button>
         </div>
       </header>
 
