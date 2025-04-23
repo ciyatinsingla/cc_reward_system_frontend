@@ -66,7 +66,10 @@ const AdminDashboard = () => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
   const [isStartEnabled, setIsStartEnabled] = useState(false);
+  const [isStartClicked, setIsStartClicked] = useState(false);
   const [isEndEnabled, setIsEndEnabled] = useState(false);
+  const [isEndClicked, setIsEndClicked] = useState(false);
+  const [selectedFileName, setSelectedFileName] = useState("");
 
   useEffect(() => {
     const fetchAdminData = async () => {
@@ -106,13 +109,13 @@ const AdminDashboard = () => {
       const now = new Date();
       const currentHour = now.getHours();
 
-      setIsStartEnabled(currentHour >= 6 && currentHour < 7);
-      setIsEndEnabled(currentHour >= 22 && currentHour < 23);
+      setIsStartEnabled(currentHour >= 6 && currentHour < 22);
+      setIsEndEnabled(currentHour >= 7 && currentHour < 23);
     };
 
     updateSyncButtons(); // initial call
 
-    const intervalId = setInterval(updateSyncButtons, 60000); // update every minute
+    const intervalId = setInterval(updateSyncButtons, 360000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -218,6 +221,9 @@ const AdminDashboard = () => {
   const handleBulkFileChange = (e) => {
     if (e.target.files.length > 0) {
       setBulkFile(e.target.files[0]);
+      setSelectedFileName(e.target.files[0].name); // Set file name
+    } else {
+      setSelectedFileName("");
     }
   };
 
@@ -280,7 +286,8 @@ const AdminDashboard = () => {
 
   const startSync = async () => {
     const token = localStorage.getItem("token");
-
+    setIsStartEnabled(false);
+    setIsStartClicked(true);
     try {
       const response = await axios.get(
         "http://localhost:8080/lmsa/source/begin",
@@ -297,10 +304,14 @@ const AdminDashboard = () => {
       console.error("Error applying changes:", error);
       alert("Invalid or corrupted data found.");
     }
+    setIsStartEnabled(true);
+    setIsStartClicked(false);
   };
 
   const stopSync = async () => {
     const token = localStorage.getItem("token");
+    setIsEndEnabled(false);
+    setIsEndClicked(true);
     try {
       const response = await axios.get(
         "http://localhost:8080/lmsa/source/end",
@@ -319,6 +330,8 @@ const AdminDashboard = () => {
         error.response?.data?.message || "Something went wrong. Try again.";
       alert("Error: " + errorMsg);
     }
+    setIsEndEnabled(true);
+    setIsEndClicked(false);
   };
 
   if (!adminData) {
@@ -520,7 +533,6 @@ const AdminDashboard = () => {
                           let sign = "";
                           if (entry.requestType) {
                             const lowerType = entry.requestType.toLowerCase();
-                            console.log("Ratnender", lowerType);
                             if (lowerType.includes("earned")) {
                               sign = "+";
                             } else {
@@ -529,7 +541,18 @@ const AdminDashboard = () => {
                           }
                           return (
                             <li key={idx} className="history-item">
-                              <span>{`${sign} ${entry.pointsUsed} points – ${entry.rewardDescription}`}</span>
+                              <span>{`[${sign} ${entry.pointsUsed} points | ${entry.rewardDescription}]`}</span>
+                              <span
+                                className={`history-status ${
+                                  entry.status.toLowerCase() === "approved"
+                                    ? "approved"
+                                    : "rejected"
+                                }`}
+                              >
+                                <strong>{entry.status}</strong>
+                              </span>
+
+                              <span>{`(${entry.reason})`}</span>
                               <span className="history-date">
                                 {formatDate(entry.requestDate)}
                               </span>
@@ -554,10 +577,12 @@ const AdminDashboard = () => {
           <form onSubmit={handleBulkUpload} className="bulk-upload-form">
             <label
               htmlFor="uploadInput"
-              className="bulk-upload-label"
+               className={`bulk-upload-label ${selectedFileName ? 'selected-file' : ''}`}
               title="Customer Id, Name, Request Type, Reward Description, Amount, etc."
             >
-              <FontAwesomeIcon icon={faUpload} /> Upload CSV
+              <FontAwesomeIcon icon={faUpload} />{" "}
+              {selectedFileName || "Upload CSV"}{" "}
+              {/* 👈 This line changes based on file selection */}
               <div className="bulk-upload-desc">
                 Customer Id, Name, Request Type, Reward Description, Amount,
                 etc.
@@ -583,7 +608,7 @@ const AdminDashboard = () => {
             <br />
             Sync Request from Source System
           </h2>
-          {!isStartEnabled && (
+          {!isStartEnabled && !isStartClicked && (
             <span style={{ color: "red", fontSize: "0.9rem" }}>
               Start Sync available from 6AM to 7AM
             </span>
@@ -604,7 +629,7 @@ const AdminDashboard = () => {
               <span style={{ marginLeft: "0.5rem" }}>Start Sync</span>
             </button>
           </div>
-          {!isEndEnabled && (
+          {!isEndEnabled && !isEndClicked && (
             <span style={{ color: "red", fontSize: "0.9rem" }}>
               End Sync available from 10PM to 11PM
             </span>
