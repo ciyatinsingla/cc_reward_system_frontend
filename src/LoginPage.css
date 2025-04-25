@@ -4,7 +4,7 @@
 
 /* General styling */
 body {
-  background-image: url("https://i.postimg.cc/WbjH92BC/ccrp.png");
+  background-image: url("/src/CCRP.webp");
   background-size: cover; /* Ensures the image covers the container */
   background-position: center;
   background-attachment: fixed; /* Keeps the background fixed during scroll */

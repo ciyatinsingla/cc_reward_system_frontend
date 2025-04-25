@@ -13,9 +13,11 @@ const UserDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [rewards, setRewards] = useState([]);
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal for rewards
-  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false); // Modal for activity
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -64,7 +66,6 @@ const UserDashboard = () => {
         console.error("Error fetching rewards:", error);
       }
     };
-
     if (token) {
       fetchUserData();
       fetchRewards();
@@ -169,16 +170,13 @@ const UserDashboard = () => {
 
   const redeemReward = async (rewardId) => {
     try {
-      // Find the reward object based on the rewardId
-      const reward = rewards.find((r) => r.id === rewardId); // Find the reward in the rewards list
-
-      // Send the reward object to the backend for redemption
+      const reward = rewards.find((r) => r.id === rewardId);
       const response = await axios.post(
         `http://localhost:8080/lmsa/rewards/redeem`,
-        reward, // Send the whole reward object to the backend
+        reward,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Pass the token for authentication
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -187,7 +185,7 @@ const UserDashboard = () => {
         alert(
           `Reward redemption request submitted successfully: ${reward.name}`
         );
-        setUserData(response.data.user); // Update user data after successful redemption
+        setUserData(response.data.user);
       } else {
         alert("Error: " + response.data);
       }
@@ -201,26 +199,106 @@ const UserDashboard = () => {
   const ActivityList = ({ activities }) => {
     return (
       <div className="activity-list">
-        {activities?.length > 0 ? (
-          activities.map((activity, index) => (
-            <div className="activity-item" key={index}>
-              <strong
-                style={{
-                  color: activity.requestType === "Earned" ? "green" : "#333",
-                }}
-              >
-                {activity.requestType} {activity.pointsUsed} points used
-              </strong>
-              <div>{activity.rewardDescription}</div>
-              <small>{formatDate(activity.requestDate)}</small>
-            </div>
-          ))
-        ) : (
-          <p>No recent activity found.</p>
-        )}
+        <ul>
+          {activities?.length > 0 ? (
+            activities.map((entry, idx) => {
+              let sign = "";
+              if (entry.requestType) {
+                const lowerType = entry.requestType.toLowerCase();
+                if (lowerType.includes("earned")) {
+                  sign = "+";
+                } else {
+                  sign = "−";
+                }
+              }
+              return (
+                <li key={idx} className="history-item">
+                  <div className="history-row">
+                    {/* Points and Description */}
+                    <div className="history-col points">
+                      {`${sign} ${entry.pointsUsed} points`}
+                      <span className="description">
+                        {entry.rewardDescription}
+                      </span>
+                    </div>
+
+                    {/* Status */}
+                    <div
+                      className={`history-col status ${entry.status?.toLowerCase()}`}
+                    >
+                      <strong>{entry.status}</strong>
+                    </div>
+
+                    {/* Reason */}
+                    <div className="history-col reason">
+                      {entry.reason ? entry.reason : ""}
+                    </div>
+
+                    {/* Date */}
+                    <div className="history-col date">
+                      {formatDate(entry.requestDate)}
+                    </div>
+                  </div>
+                </li>
+              );
+            })
+          ) : (
+            <ul className="no-history">No Recent Activity</ul>
+          )}
+        </ul>
       </div>
     );
   };
+
+  //  const ActivityList = ({ activities }) => {
+  //    return (
+  //      <div className="activity-list">
+  //        <ul>
+  //          {activities?.length > 0 ? (
+  //            activities.map((entry, idx) => {
+  //              let sign = "";
+  //              if (entry.requestType) {
+  //                const lowerType = entry.requestType.toLowerCase();
+  //                if (lowerType.includes("earned")) {
+  //                  sign = "+";
+  //                } else {
+  //                  sign = "−";
+  //                }
+  //              }
+  //              return (
+  //                <li key={idx} className="history-item">
+  //                  <div className="history-row">
+  //                    <div className="history-col points">
+  //                      {`${sign} ${entry.pointsUsed} points`}
+  //                      <span className="description">
+  //                        {entry.rewardDescription}
+  //                      </span>
+  //                    </div>
+  //
+  //                    <div
+  //                      className={`history-col status ${entry.status?.toLowerCase()}`}
+  //                    >
+  //                      <strong>{entry.status}</strong>
+  //                    </div>
+  //
+  //                    <div className="history-col reason">
+  //                      {entry.reason ? entry.reason : ""}
+  //                    </div>
+  //
+  //                    <div className="history-col date">
+  //                      {formatDate(entry.requestDate)}
+  //                    </div>
+  //                  </div>
+  //                </li>
+  //              );
+  //            })
+  //          ) : (
+  //            <li className="no-history">No history available</li>
+  //          )}
+  //        </ul>
+  //      </div>
+  //    );
+  //  };
 
   return (
     <div className="dashboard">
@@ -277,7 +355,11 @@ const UserDashboard = () => {
       </div>
 
       <div className="activity-section">
-        <h4>Recent Activity</h4>
+        <h4>
+          <strong>Recent Activity</strong>
+          <br />
+          <br />
+        </h4>
         <ActivityList activities={userData?.recentActivity} />
       </div>
 
@@ -294,9 +376,19 @@ const UserDashboard = () => {
           ) : (
             rewards.map((reward) => (
               <div
-                className="reward-card"
+                className={`reward-card ${isProcessing ? "disabled" : ""}`}
                 key={reward.id}
-                onClick={() => redeemReward(reward.id)}
+                onClick={async () => {
+                  if (isProcessing) return; // prevent action if processing
+                  setIsProcessing(true); // start processing
+                  try {
+                    await redeemReward(reward.id); // your backend call
+                  } catch (error) {
+                    console.error("Redeem failed:", error);
+                  } finally {
+                    setIsProcessing(false); // re-enable after call finishes
+                  }
+                }}
               >
                 <img src={reward.imgUrl} alt={reward.name} />
                 <p>
@@ -338,9 +430,19 @@ const UserDashboard = () => {
               ) : (
                 rewards.map((reward) => (
                   <div
-                    className="reward-card"
+                    className={`reward-card ${isRedeeming ? "disabled" : ""}`}
                     key={reward.id}
-                    onClick={() => redeemReward(reward.id)}
+                    onClick={async () => {
+                      if (isRedeeming) return;
+                      setIsRedeeming(true);
+                      try {
+                        await redeemReward(reward.id);
+                      } catch (error) {
+                        console.error("Redeem failed:", error);
+                      } finally {
+                        setIsRedeeming(false);
+                      }
+                    }}
                   >
                     <img src={reward.imgUrl} alt={reward.name} />
                     <p>{reward.name}</p>

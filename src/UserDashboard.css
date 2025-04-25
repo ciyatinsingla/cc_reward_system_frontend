@@ -31,7 +31,7 @@ body {
 }
 
 .dashboard {
-  background-image: url("https://i.postimg.cc/WbjH92BC/ccrp.png");
+    background-image: url("/src/CCRP.webp");
   background-size: cover; /* Ensures the image covers the container */
   background-position: center;
   background-attachment: fixed; /* Keeps the background fixed during scroll */
@@ -40,7 +40,6 @@ body {
   margin: auto;
   padding: 5%;
   background-repeat: no-repeat; /* Ensures the image does not repeat */
-  overflow-y: auto; /* Enables scrolling if content exceeds the height of the container */
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -184,7 +183,10 @@ h2 {
 
 .activity-section,
 .rewards-section {
+ border-radius: 16px;
   margin-top: 2rem;
+  background-color: white;
+  padding: 2rem;
 }
 
 .activity-item {
@@ -437,4 +439,79 @@ h2 {
 .activity-list {
   scrollbar-width: thin;
   scrollbar-color: rgba(136, 136, 136, 0.6) transparent;
+}
+
+.reward-card.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: wait;
+}
+
+
+.activity-list {
+  padding: 0;
+  margin: 0;
+}
+
+.history-item {
+  list-style: none;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.history-row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.history-col {
+  flex: 1;
+  max-width: 100%; /* Ensures columns are of reasonable width */
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.history-col.points {
+  flex: 1;
+}
+
+.history-col.status {
+  text-align: left;
+}
+
+.history-col.reason {
+  text-align: left;
+}
+
+.history-col.date {
+  text-align: right;
+}
+
+.history-col .description {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.history-item .history-col.status.success {
+  color: green;
+}
+
+.history-item .history-col.status.failed {
+  color: red;
+}
+
+.history-item .history-col.status.pending {
+  color: orange;
+}
+
+.no-history {
+  text-align: center;
+  color: #888;
+  padding: 1rem;
 }

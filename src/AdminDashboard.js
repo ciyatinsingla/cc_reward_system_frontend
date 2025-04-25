@@ -140,7 +140,12 @@ const AdminDashboard = () => {
   }, [searchTerm, adminData, selectedCustomer]);
 
   const handleSelectCustomer = (customer) => {
-    setSelectedCustomer(customer);
+    // If the customer is already selected, unselect it
+    if (selectedCustomer && selectedCustomer.customerId === customer.customerId) {
+      setSelectedCustomer(null);
+    } else {
+      setSelectedCustomer(customer);
+    }
   };
 
   const formatPointsText = (customer) => {
@@ -237,7 +242,7 @@ const AdminDashboard = () => {
     try {
       const formData = new FormData();
       formData.append("file", bulkFile);
-
+      setSelectedFileName("");
       const response = await axios.post(
         "http://localhost:8080/lmsa/admin/points/bulk-upload",
         formData,
@@ -541,21 +546,28 @@ const AdminDashboard = () => {
                           }
                           return (
                             <li key={idx} className="history-item">
-                              <span>{`[${sign} ${entry.pointsUsed} points | ${entry.rewardDescription}]`}</span>
-                              <span
-                                className={`history-status ${
-                                  entry.status.toLowerCase() === "approved"
-                                    ? "approved"
-                                    : "rejected"
-                                }`}
-                              >
-                                <strong>{entry.status}</strong>
-                              </span>
+                              <div className="history-row">
+                                <div className="history-col points">
+                                  {`${sign} ${entry.pointsUsed} points`}
+                                  <span className="description">
+                                    {entry.rewardDescription}
+                                  </span>
+                                </div>
 
-                              <span>{`(${entry.reason})`}</span>
-                              <span className="history-date">
-                                {formatDate(entry.requestDate)}
-                              </span>
+                                <div
+                                  className={`history-col status ${entry.status?.toLowerCase()}`}
+                                >
+                                  <strong>{entry.status}</strong>
+                                </div>
+
+                                <div className="history-col reason">
+                                  {entry.reason ? entry.reason : ""}
+                                </div>
+
+                                <div className="history-col date">
+                                  {formatDate(entry.requestDate)}
+                                </div>
+                              </div>
                             </li>
                           );
                         })
@@ -577,12 +589,13 @@ const AdminDashboard = () => {
           <form onSubmit={handleBulkUpload} className="bulk-upload-form">
             <label
               htmlFor="uploadInput"
-               className={`bulk-upload-label ${selectedFileName ? 'selected-file' : ''}`}
+              className={`bulk-upload-label ${
+                selectedFileName ? "selected-file" : ""
+              }`}
               title="Customer Id, Name, Request Type, Reward Description, Amount, etc."
             >
               <FontAwesomeIcon icon={faUpload} />{" "}
               {selectedFileName || "Upload CSV"}{" "}
-              {/* 👈 This line changes based on file selection */}
               <div className="bulk-upload-desc">
                 Customer Id, Name, Request Type, Reward Description, Amount,
                 etc.
@@ -606,11 +619,11 @@ const AdminDashboard = () => {
           </form>
           <h2>
             <br />
-            Sync Request from Source System
+            Batch Operations
           </h2>
           {!isStartEnabled && !isStartClicked && (
             <span style={{ color: "red", fontSize: "0.9rem" }}>
-              Start Sync available from 6AM to 7AM
+              Start of the day available from 6AM to 7AM
             </span>
           )}
           <div style={{ display: "flex", gap: "1rem" }}>
@@ -621,17 +634,17 @@ const AdminDashboard = () => {
               disabled={!isStartEnabled}
               title={
                 !isStartEnabled
-                  ? "Start Sync available from 6AM to 7AM"
-                  : "Start Sync"
+                  ? "Start of the day available from 6AM to 7AM"
+                  : "Start of the day"
               }
             >
               <FontAwesomeIcon icon={faPlayCircle} />
-              <span style={{ marginLeft: "0.5rem" }}>Start Sync</span>
+              <span style={{ marginLeft: "0.5rem" }}>Start of the day</span>
             </button>
           </div>
           {!isEndEnabled && !isEndClicked && (
             <span style={{ color: "red", fontSize: "0.9rem" }}>
-              End Sync available from 10PM to 11PM
+              End of the day available from 10PM to 11PM
             </span>
           )}
           <div style={{ display: "flex", gap: "1rem" }}>
@@ -642,12 +655,12 @@ const AdminDashboard = () => {
               disabled={!isEndEnabled}
               title={
                 !isEndEnabled
-                  ? "End Sync available from 10PM to 11PM"
-                  : "End Sync"
+                  ? "End of the day available from 10PM to 11PM"
+                  : "End of the day"
               }
             >
               <FontAwesomeIcon icon={faStopCircle} />
-              <span style={{ marginLeft: "0.5rem" }}>End Sync</span>
+              <span style={{ marginLeft: "0.5rem" }}>End of the day</span>
             </button>
           </div>
         </section>

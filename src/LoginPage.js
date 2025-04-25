@@ -79,9 +79,16 @@ const LoginPage = () => {
         className="text-center border p-5 rounded shadow bg-white"
         style={{ maxWidth: "400px", width: "100%" }}
       >
-        <h2 className="mb-1 fw-bold">LO-GO</h2>
-        <h4 className="mb-4">Login</h4>
-
+        <div>
+          <img
+            style={{ width: "150px", height: "auto" }}
+            src="/logo512.png"
+            className="mb-1 fw-bold"
+          />
+        </div>
+        <br />
+        <br />
+        <h2 className="mb-4">Login</h2>
         <form onSubmit={handleLogin}>
           <div className="mb-3">
             <input
