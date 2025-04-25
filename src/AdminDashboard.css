@@ -348,6 +348,7 @@
 }
 
 .history-log {
+  padding: 3%;
   flex-grow: 1;
   overflow-y: auto;
 }
@@ -607,4 +608,8 @@
 .date {
   color: #888;
   font-size: 13px;
+}
+
+.hidden {
+  display: none;
 }

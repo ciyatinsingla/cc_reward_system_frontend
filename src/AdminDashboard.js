@@ -141,7 +141,10 @@ const AdminDashboard = () => {
 
   const handleSelectCustomer = (customer) => {
     // If the customer is already selected, unselect it
-    if (selectedCustomer && selectedCustomer.customerId === customer.customerId) {
+    if (
+      selectedCustomer &&
+      selectedCustomer.customerId === customer.customerId
+    ) {
       setSelectedCustomer(null);
     } else {
       setSelectedCustomer(customer);
@@ -365,6 +368,7 @@ const AdminDashboard = () => {
 
       <div className="main-content">
         <section className="left-column">
+          {/* Search Form */}
           <form className="search-form" onSubmit={(e) => e.preventDefault()}>
             <input
               type="search"
@@ -377,6 +381,7 @@ const AdminDashboard = () => {
             />
           </form>
 
+          {/* Customer List and Details */}
           <div className="list-details-container">
             <div className="customer-list">
               <table>
@@ -392,8 +397,8 @@ const AdminDashboard = () => {
                 <tbody>
                   {filteredCustomers.map((customer) => {
                     const isSelected =
-                      selectedCustomer &&
-                      customer.customerId === selectedCustomer.customerId;
+                      selectedCustomer?.customerId === customer.customerId;
+
                     return (
                       <tr
                         key={customer.customerId}
@@ -403,7 +408,7 @@ const AdminDashboard = () => {
                         aria-pressed={isSelected}
                         onClick={() => handleSelectCustomer(customer)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
+                          if (["Enter", " "].includes(e.key)) {
                             e.preventDefault();
                             handleSelectCustomer(customer);
                           }
@@ -451,6 +456,7 @@ const AdminDashboard = () => {
               </table>
             </div>
 
+            {/* Customer Detail View */}
             <div className="customer-details">
               {selectedCustomer ? (
                 <>
@@ -475,14 +481,15 @@ const AdminDashboard = () => {
                     </div>
                     <div className="tier-info">
                       <span>Tier: {getTier(selectedCustomer.points).name}</span>
-                      {getTier(selectedCustomer.points).nextTier?.trim() ? (
+                      {getTier(selectedCustomer.points).nextTier?.trim() && (
                         <span>
                           Next: {getTier(selectedCustomer.points).nextTier}
                         </span>
-                      ) : null}
+                      )}
                     </div>
                   </div>
 
+                  {/* Points Update Form */}
                   <form className="points-form" onSubmit={handleApplyChange}>
                     <label htmlFor="action" className="form-label">
                       Action
@@ -528,62 +535,57 @@ const AdminDashboard = () => {
                       <span>Apply Change</span>
                     </button>
                   </form>
-
-                  <div className="history-log">
-                    <h3>History Log</h3>
-                    <ul>
-                      {selectedCustomer.recentActivity &&
-                      selectedCustomer.recentActivity.length > 0 ? (
-                        selectedCustomer.recentActivity.map((entry, idx) => {
-                          let sign = "";
-                          if (entry.requestType) {
-                            const lowerType = entry.requestType.toLowerCase();
-                            if (lowerType.includes("earned")) {
-                              sign = "+";
-                            } else {
-                              sign = "−";
-                            }
-                          }
-                          return (
-                            <li key={idx} className="history-item">
-                              <div className="history-row">
-                                <div className="history-col points">
-                                  {`${sign} ${entry.pointsUsed} points`}
-                                  <span className="description">
-                                    {entry.rewardDescription}
-                                  </span>
-                                </div>
-
-                                <div
-                                  className={`history-col status ${entry.status?.toLowerCase()}`}
-                                >
-                                  <strong>{entry.status}</strong>
-                                </div>
-
-                                <div className="history-col reason">
-                                  {entry.reason ? entry.reason : ""}
-                                </div>
-
-                                <div className="history-col date">
-                                  {formatDate(entry.requestDate)}
-                                </div>
-                              </div>
-                            </li>
-                          );
-                        })
-                      ) : (
-                        <li className="no-history">No history available</li>
-                      )}
-                    </ul>
-                  </div>
                 </>
               ) : (
                 <p>No customer selected</p>
               )}
             </div>
           </div>
+
+          {/* History Log */}
+          <div className="history-log">
+            <h3>History Log</h3>
+            <ul>
+              {selectedCustomer?.recentActivity?.length > 0 ? (
+                selectedCustomer.recentActivity.map((entry, idx) => {
+                  const sign = entry.requestType
+                    ?.toLowerCase()
+                    .includes("earned")
+                    ? "+"
+                    : "−";
+
+                  return (
+                    <li key={idx} className="history-item">
+                      <div className="history-row">
+                        <div className="history-col points">
+                          {`${sign} ${entry.pointsUsed} points`}
+                          <span className="description">
+                            {entry.rewardDescription}
+                          </span>
+                        </div>
+                        <div
+                          className={`history-col status ${entry.status?.toLowerCase()}`}
+                        >
+                          <strong>{entry.status}</strong>
+                        </div>
+                        <div className="history-col reason">
+                          {entry.reason || ""}
+                        </div>
+                        <div className="history-col date">
+                          {formatDate(entry.requestDate)}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })
+              ) : (
+                <li className="no-history">No history available</li>
+              )}
+            </ul>
+          </div>
         </section>
 
+        {/* Right Column: Bulk Upload and Batch Ops */}
         <section className="right-column">
           <h2>Bulk Points Update</h2>
           <form onSubmit={handleBulkUpload} className="bulk-upload-form">
@@ -594,8 +596,8 @@ const AdminDashboard = () => {
               }`}
               title="Customer Id, Name, Request Type, Reward Description, Amount, etc."
             >
-              <FontAwesomeIcon icon={faUpload} />{" "}
-              {selectedFileName || "Upload CSV"}{" "}
+              <FontAwesomeIcon icon={faUpload} />
+              {selectedFileName || "Upload CSV"}
               <div className="bulk-upload-desc">
                 Customer Id, Name, Request Type, Reward Description, Amount,
                 etc.
@@ -617,16 +619,18 @@ const AdminDashboard = () => {
               <span>Upload</span>
             </button>
           </form>
+
           <h2>
             <br />
             Batch Operations
           </h2>
+
           {!isStartEnabled && !isStartClicked && (
-            <span style={{ color: "red", fontSize: "0.9rem" }}>
+            <span className="warning-text">
               Start of the day available from 6AM to 7AM
             </span>
           )}
-          <div style={{ display: "flex", gap: "1rem" }}>
+          <div className="button-row">
             <button
               type="button"
               className="apply-btn full-width"
@@ -639,15 +643,16 @@ const AdminDashboard = () => {
               }
             >
               <FontAwesomeIcon icon={faPlayCircle} />
-              <span style={{ marginLeft: "0.5rem" }}>Start of the day</span>
+              <span>Start of the day</span>
             </button>
           </div>
+
           {!isEndEnabled && !isEndClicked && (
-            <span style={{ color: "red", fontSize: "0.9rem" }}>
+            <span className="warning-text">
               End of the day available from 10PM to 11PM
             </span>
           )}
-          <div style={{ display: "flex", gap: "1rem" }}>
+          <div className="button-row">
             <button
               type="button"
               className="apply-btn full-width"
@@ -660,7 +665,7 @@ const AdminDashboard = () => {
               }
             >
               <FontAwesomeIcon icon={faStopCircle} />
-              <span style={{ marginLeft: "0.5rem" }}>End of the day</span>
+              <span>End of the day</span>
             </button>
           </div>
         </section>
