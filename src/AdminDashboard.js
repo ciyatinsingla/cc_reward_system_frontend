@@ -109,8 +109,8 @@ const AdminDashboard = () => {
       const now = new Date();
       const currentHour = now.getHours();
 
-      setIsStartEnabled(currentHour >= 6 && currentHour < 22);
-      setIsEndEnabled(currentHour >= 7 && currentHour < 23);
+      setIsStartEnabled(currentHour >= 6 && currentHour < 7);
+      setIsEndEnabled(currentHour >= 22 && currentHour < 23);
     };
 
     updateSyncButtons(); // initial call
